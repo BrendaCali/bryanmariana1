@@ -1,527 +1,299 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Heart } from 'lucide-react';
 
 export function PhotoCapture() {
-  const [showConfetti, setShowConfetti] = useState(false);
-  const [showLoveLetter, setShowLoveLetter] = useState(false);
+  const [currentPhoto, setCurrentPhoto] = useState(0);
+  const [showMessage, setShowMessage] = useState(false);
+  const photos = [1, 2, 3, 4, 5, 6];
 
-  // Posiciones de las fotos alrededor del corazón central
-  const photoPositions = [
-    { top: '10%', left: '15%', rotate: -8 },
-    { top: '12%', right: '18%', rotate: 5 },
-    { bottom: '25%', left: '12%', rotate: 6 },
-    { bottom: '22%', right: '15%', rotate: -7 },
-  ];
+  useEffect(() => {
+    // Cambiar foto cada 5 segundos (más lento)
+    const photoTimer = setInterval(() => {
+      setCurrentPhoto((prev) => {
+        if (prev < photos.length - 1) {
+          return prev + 1;
+        } else {
+          // Cuando terminan todas las fotos, mostrar mensaje
+          setShowMessage(true);
+          return prev;
+        }
+      });
+    }, 5000); // Aumentado de 3000 a 5000ms
 
-  const handleButtonClick = () => {
-    // MOSTRAR CONFETI
-    setShowConfetti(true);
-    
-    // El confeti dura 3 segundos
-    setTimeout(() => {
-      setShowConfetti(false);
-    }, 3000);
-
-    // Mostrar carta de amor después del confeti
-    setTimeout(() => {
-      setShowLoveLetter(true);
-    }, 3500);
-  };
+    return () => clearInterval(photoTimer);
+  }, []);
 
   return (
-    <div className="absolute inset-0 flex items-center justify-center z-50">
-      {/* CONFETI DE CORAZONES */}
-      <AnimatePresence>
-        {showConfetti && (
-          <>
-            {/* Confeti que cae desde arriba */}
-            {[...Array(50)].map((_, i) => {
-              const hearts = ['💖', '💗', '💝', '💓', '💕', '❤️', '💞', '💘'];
-              const randomHeart = hearts[Math.floor(Math.random() * hearts.length)];
-              
-              return (
-                <motion.div
-                  key={`confetti-fall-${i}`}
-                  className="absolute text-4xl pointer-events-none z-[100]"
-                  style={{
-                    left: `${Math.random() * 100}%`,
-                    top: '-10%',
-                  }}
-                  initial={{ y: 0, opacity: 1, rotate: 0 }}
-                  animate={{
-                    y: '110vh',
-                    opacity: [1, 1, 0],
-                    rotate: Math.random() * 720 - 360,
-                    x: [0, Math.random() * 100 - 50],
-                  }}
-                  exit={{ opacity: 0 }}
-                  transition={{
-                    duration: Math.random() * 2 + 2,
-                    delay: Math.random() * 0.5,
-                    ease: 'easeIn',
-                  }}
-                >
-                  {randomHeart}
-                </motion.div>
-              );
-            })}
-
-            {/* Confeti que explota desde el centro */}
-            {[...Array(40)].map((_, i) => {
-              const hearts = ['💖', '💗', '💝', '💓', '💕', '❤️', '💞', '💘'];
-              const randomHeart = hearts[Math.floor(Math.random() * hearts.length)];
-              const angle = (i * 360) / 40;
-              const distance = 200 + Math.random() * 300;
-              
-              return (
-                <motion.div
-                  key={`confetti-explode-${i}`}
-                  className="absolute text-3xl pointer-events-none z-[100]"
-                  style={{
-                    left: '50%',
-                    top: '50%',
-                  }}
-                  initial={{ 
-                    x: 0, 
-                    y: 0, 
-                    opacity: 1, 
-                    scale: 0,
-                    rotate: 0,
-                  }}
-                  animate={{
-                    x: Math.cos(angle * Math.PI / 180) * distance,
-                    y: Math.sin(angle * Math.PI / 180) * distance,
-                    opacity: [1, 1, 0],
-                    scale: [0, 1.5, 1],
-                    rotate: Math.random() * 720,
-                  }}
-                  exit={{ opacity: 0 }}
-                  transition={{
-                    duration: 2,
-                    ease: 'easeOut',
-                  }}
-                >
-                  {randomHeart}
-                </motion.div>
-              );
-            })}
-
-            {/* Estrellas brillantes que explotan */}
-            {[...Array(30)].map((_, i) => {
-              const angle = (i * 360) / 30;
-              const distance = 150 + Math.random() * 250;
-              
-              return (
-                <motion.div
-                  key={`star-explode-${i}`}
-                  className="absolute text-4xl pointer-events-none z-[100]"
-                  style={{
-                    left: '50%',
-                    top: '50%',
-                  }}
-                  initial={{ 
-                    x: 0, 
-                    y: 0, 
-                    opacity: 1, 
-                    scale: 0,
-                  }}
-                  animate={{
-                    x: Math.cos(angle * Math.PI / 180) * distance,
-                    y: Math.sin(angle * Math.PI / 180) * distance,
-                    opacity: [1, 1, 0],
-                    scale: [0, 2, 0],
-                    rotate: [0, 360],
-                  }}
-                  exit={{ opacity: 0 }}
-                  transition={{
-                    duration: 1.5,
-                    ease: 'easeOut',
-                    delay: Math.random() * 0.3,
-                  }}
-                >
-                  ✨
-                </motion.div>
-              );
-            })}
-          </>
-        )}
-      </AnimatePresence>
-
-      {/* Pantalla de carta de amor */}
-      <AnimatePresence>
-        {showLoveLetter && (
+    <div className="absolute inset-0 bg-gradient-to-br from-purple-900 via-violet-900 to-pink-900 overflow-hidden z-50">
+      {/* Estrellas de fondo */}
+      <div className="absolute inset-0">
+        {[...Array(50)].map((_, i) => (
           <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ type: "spring", duration: 1 }}
-            className="absolute inset-0 bg-gradient-to-br from-rose-900 via-pink-900 to-purple-900 flex flex-col items-center justify-center z-[60] px-4 overflow-y-auto"
+            key={i}
+            className="absolute w-1 h-1 bg-white rounded-full"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+            }}
+            animate={{
+              opacity: [0.2, 1, 0.2],
+              scale: [1, 1.5, 1],
+            }}
+            transition={{
+              duration: Math.random() * 3 + 2,
+              repeat: Infinity,
+              delay: Math.random() * 2,
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Título principal */}
+      <motion.div
+        initial={{ opacity: 0, y: -50 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="absolute top-6 md:top-12 left-0 right-0 text-center z-30 px-4"
+      >
+        <h1 className="text-3xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-300 via-purple-300 to-pink-300">
+          Nuestros Momentos 💕
+        </h1>
+        <p className="text-lg md:text-xl text-pink-200 mt-2">
+          Foto {currentPhoto + 1} de {photos.length}
+        </p>
+      </motion.div>
+
+      {/* Carrusel de fotos */}
+      <div className="absolute inset-0 flex items-center justify-center px-4 md:px-12">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentPhoto}
+            initial={{ opacity: 0, scale: 0.8, rotateY: -90 }}
+            animate={{ opacity: 1, scale: 1, rotateY: 0 }}
+            exit={{ opacity: 0, scale: 0.8, rotateY: 90 }}
+            transition={{ duration: 1, type: 'spring' }}
+            className="relative max-w-2xl w-full"
           >
-            {/* Corazones flotantes de fondo */}
-            <div className="absolute inset-0">
-              {[...Array(40)].map((_, i) => (
-                <motion.div
-                  key={`bg-heart-${i}`}
-                  className="absolute text-pink-300 opacity-20"
-                  style={{
-                    left: `${Math.random() * 100}%`,
-                    top: `${Math.random() * 100}%`,
-                    fontSize: `${Math.random() * 40 + 30}px`,
-                  }}
-                  animate={{
-                    y: [0, -30, 0],
-                    rotate: [0, 360],
-                    scale: [1, 1.3, 1],
-                  }}
-                  transition={{
-                    duration: 4 + Math.random() * 3,
-                    repeat: Infinity,
-                    delay: Math.random() * 3,
-                  }}
-                >
-                  💕
-                </motion.div>
-              ))}
-            </div>
+            {/* Marco de la foto */}
+            <div className="relative bg-gradient-to-br from-pink-500 via-purple-500 to-red-500 p-3 md:p-4 rounded-3xl shadow-2xl">
+              <div className="bg-white p-2 md:p-3 rounded-2xl">
+                <div className="relative overflow-hidden rounded-xl">
+                  <motion.img
+                    src={`/fotos/foto${photos[currentPhoto]}.jpg`}
+                    alt={`Momento especial ${photos[currentPhoto]}`}
+                    className="w-full h-[50vh] md:h-[60vh] object-cover"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src = `data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="800" height="600"%3E%3Crect fill="%23f472b6" width="800" height="600"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-size="60" fill="white"%3EFoto ${photos[currentPhoto]}%3C/text%3E%3C/svg%3E`;
+                    }}
+                    animate={{
+                      scale: [1, 1.05, 1],
+                    }}
+                    transition={{
+                      duration: 4,
+                      repeat: Infinity,
+                    }}
+                  />
+                </div>
+              </div>
 
-            {/* Estrellas brillantes */}
-            <div className="absolute inset-0">
-              {[...Array(50)].map((_, i) => (
-                <motion.div
-                  key={`star-${i}`}
-                  className="absolute text-yellow-200"
-                  style={{
-                    left: `${Math.random() * 100}%`,
-                    top: `${Math.random() * 100}%`,
-                    fontSize: `${Math.random() * 20 + 15}px`,
-                  }}
-                  animate={{
-                    opacity: [0, 1, 0],
-                    scale: [0, 1.5, 0],
-                    rotate: [0, 180, 360],
-                  }}
-                  transition={{
-                    duration: Math.random() * 3 + 2,
-                    repeat: Infinity,
-                    delay: Math.random() * 2,
-                  }}
-                >
-                  ✨
-                </motion.div>
-              ))}
-            </div>
-
-            {/* Contenedor de la carta */}
-            <motion.div
-              initial={{ y: 50, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.5, duration: 0.8 }}
-              className="relative z-10 max-w-3xl w-full my-8"
-            >
-              {/* Corazón principal arriba */}
+              {/* Corazones en las esquinas */}
               <motion.div
+                className="absolute -top-4 -left-4 text-4xl md:text-5xl"
                 animate={{
-                  scale: [1, 1.2, 1],
-                  rotate: [0, 5, -5, 0],
+                  scale: [1, 1.3, 1],
+                  rotate: [0, 360],
                 }}
                 transition={{
                   duration: 3,
                   repeat: Infinity,
                 }}
-                className="text-center mb-8"
               >
-                <div className="text-8xl md:text-9xl">💖</div>
+                💖
+              </motion.div>
+              <motion.div
+                className="absolute -top-4 -right-4 text-4xl md:text-5xl"
+                animate={{
+                  scale: [1, 1.3, 1],
+                  rotate: [0, -360],
+                }}
+                transition={{
+                  duration: 3,
+                  delay: 0.5,
+                  repeat: Infinity,
+                }}
+              >
+                💗
+              </motion.div>
+              <motion.div
+                className="absolute -bottom-4 -left-4 text-4xl md:text-5xl"
+                animate={{
+                  scale: [1, 1.3, 1],
+                  rotate: [0, 360],
+                }}
+                transition={{
+                  duration: 3,
+                  delay: 1,
+                  repeat: Infinity,
+                }}
+              >
+                💝
+              </motion.div>
+              <motion.div
+                className="absolute -bottom-4 -right-4 text-4xl md:text-5xl"
+                animate={{
+                  scale: [1, 1.3, 1],
+                  rotate: [0, -360],
+                }}
+                transition={{
+                  duration: 3,
+                  delay: 1.5,
+                  repeat: Infinity,
+                }}
+              >
+                💓
+              </motion.div>
+            </div>
+
+            {/* Texto descriptivo debajo */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className="mt-6 text-center"
+            >
+              <p className="text-xl md:text-2xl text-white font-bold">
+                Momento Especial {photos[currentPhoto]}
+              </p>
+            </motion.div>
+          </motion.div>
+        </AnimatePresence>
+      </div>
+
+      {/* Indicadores de progreso */}
+      <div className="absolute bottom-6 md:bottom-12 left-0 right-0 flex justify-center gap-2 px-4 z-30">
+        {photos.map((_, index) => (
+          <motion.div
+            key={index}
+            className={`h-2 rounded-full transition-all ${
+              index === currentPhoto
+                ? 'bg-pink-400 w-12'
+                : index < currentPhoto
+                ? 'bg-pink-600 w-8'
+                : 'bg-white/30 w-8'
+            }`}
+            animate={{
+              scale: index === currentPhoto ? [1, 1.2, 1] : 1,
+            }}
+            transition={{
+              duration: 0.5,
+              repeat: index === currentPhoto ? Infinity : 0,
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Mensaje final cuando terminen todas las fotos */}
+      <AnimatePresence>
+        {showMessage && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1, type: 'spring' }}
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-40 px-4"
+          >
+            <motion.div
+              animate={{
+                scale: [1, 1.05, 1],
+                rotate: [0, 2, -2, 0],
+              }}
+              transition={{
+                duration: 2,
+                repeat: Infinity,
+              }}
+              className="bg-gradient-to-br from-pink-500 via-purple-500 to-red-500 p-8 md:p-12 rounded-3xl shadow-2xl text-center max-w-2xl"
+            >
+              <motion.div
+                animate={{
+                  scale: [1, 1.2, 1],
+                }}
+                transition={{
+                  duration: 1.5,
+                  repeat: Infinity,
+                }}
+                className="text-6xl md:text-8xl mb-6"
+              >
+                💕
               </motion.div>
 
-              {/* Carta con efecto de papel */}
-              <div className="bg-gradient-to-br from-white/95 to-pink-50/95 backdrop-blur-lg rounded-3xl p-8 md:p-12 shadow-2xl border-4 border-pink-200/50 relative">
-                {/* Decoración de esquinas */}
-                <div className="absolute top-4 left-4 text-4xl">🌸</div>
-                <div className="absolute top-4 right-4 text-4xl">🌸</div>
-                <div className="absolute bottom-4 left-4 text-4xl">💝</div>
-                <div className="absolute bottom-4 right-4 text-4xl">💝</div>
+              <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">
+                Gracias por acompañarme
+              </h2>
+              
+              <p className="text-xl md:text-3xl text-pink-100 mb-4">
+                y hacer mis momentos increíbles.
+              </p>
 
-                {/* Contenido de la carta */}
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 1, duration: 1 }}
-                  className="space-y-6 text-gray-800"
-                >
-                  <motion.p
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 1.2 }}
-                    className="text-lg md:text-xl leading-relaxed"
-                  >
-                    Leí tu carta y me llegó al corazón.
-                  </motion.p>
-                  
-                  <motion.p
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 1.5 }}
-                    className="text-lg md:text-xl leading-relaxed"
-                  >
-                    Me gusta mucho lo que estamos construyendo… cómo llegaste a mi vida tan natural y cómo contigo me siento en paz y a la vez emocionado.
-                  </motion.p>
-                  
-                  <motion.p
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 1.8 }}
-                    className="text-lg md:text-xl leading-relaxed"
-                  >
-                    También me siento vulnerable, porque esto me importa de verdad, pero lejos de asustarme, me dan más ganas de quedarme y conocerte cada día más.
-                  </motion.p>
-                  
-                  <motion.p
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 2.1 }}
-                    className="text-lg md:text-xl leading-relaxed"
-                  >
-                    Me encanta tu forma de ser conmigo y todo lo bonito que me haces sentir.
-                  </motion.p>
-                  
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 2.5, type: "spring" }}
-                    className="text-xl md:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-600 via-rose-600 to-red-600 pt-4"
-                  >
-                    <p className="mb-4">
-                      Quiero que lo sepas sin rodeos: te quiero…
-                    </p>
-                    <p className="text-2xl md:text-3xl">
-                      y sí, me estoy enamorando de ti, de una forma sincera y profunda. 🤍
-                    </p>
-                  </motion.div>
-                </motion.div>
+              <p className="text-2xl md:text-4xl text-yellow-300 font-bold mb-6">
+                Espero que me acompañes en más.
+              </p>
 
-                {/* Firma decorativa */}
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 3 }}
-                  className="mt-8 text-right"
-                >
-                  <p className="text-2xl md:text-3xl font-dancing text-pink-700">
-                    Con todo mi amor 💕
-                  </p>
-                </motion.div>
-              </div>
+              <motion.div
+                className="mt-8 flex justify-center gap-3"
+                animate={{
+                  scale: [1, 1.1, 1],
+                }}
+                transition={{
+                  duration: 1,
+                  repeat: Infinity,
+                }}
+              >
+                <span className="text-5xl md:text-6xl">💖</span>
+                <span className="text-5xl md:text-6xl">💗</span>
+                <span className="text-5xl md:text-6xl">💝</span>
+              </motion.div>
 
-              {/* Corazones decorativos flotantes alrededor de la carta */}
-              {[...Array(8)].map((_, i) => (
-                <motion.div
-                  key={`float-heart-${i}`}
-                  className="absolute text-5xl"
-                  style={{
-                    left: i % 2 === 0 ? '-10%' : '110%',
-                    top: `${(i * 100) / 8}%`,
-                  }}
-                  animate={{
-                    x: i % 2 === 0 ? [-20, 20, -20] : [20, -20, 20],
-                    y: [-20, 20, -20],
-                    rotate: [0, 360],
-                    scale: [1, 1.3, 1],
-                  }}
-                  transition={{
-                    duration: 4,
-                    repeat: Infinity,
-                    delay: i * 0.5,
-                  }}
-                >
-                  {i % 4 === 0 ? '💖' : i % 4 === 1 ? '💗' : i % 4 === 2 ? '💝' : '💕'}
-                </motion.div>
-              ))}
+              {/* Texto final - solo corazón */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 1, type: 'spring' }}
+                className="mt-8 bg-pink-600 rounded-full p-6 inline-block"
+              >
+                <p className="text-3xl md:text-5xl font-bold text-white flex items-center gap-3">
+                  <span>✨</span>
+                  <span>Tú eres mi felicidad</span>
+                  <span>✨</span>
+                </p>
+              </motion.div>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Escena principal de fotos - SIEMPRE VISIBLE */}
-      {!showLoveLetter && (
-        <div className="relative w-full h-screen bg-gradient-to-b from-indigo-900 via-purple-900 to-pink-900 overflow-hidden">
-        {/* Skyline decorativo */}
-        <div className="absolute bottom-0 left-0 right-0 h-64">
-          <div className="absolute bottom-0 w-full h-48 bg-gradient-to-t from-purple-950/80 to-transparent">
-            <div className="absolute bottom-0 left-0 right-0 flex items-end justify-around h-full opacity-60">
-              {[...Array(15)].map((_, i) => (
-                <div
-                  key={i}
-                  className="bg-purple-950"
-                  style={{
-                    width: `${Math.random() * 60 + 30}px`,
-                    height: `${Math.random() * 120 + 60}px`,
-                  }}
-                />
-              ))}
-            </div>
-          </div>
-          <div className="absolute bottom-0 w-full h-32 bg-gradient-to-b from-transparent to-indigo-950/50" />
-        </div>
-
-        {/* Estrellas */}
-        <div className="absolute inset-0">
-          {[...Array(50)].map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute w-1 h-1 bg-white rounded-full"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 70}%`,
-              }}
-              animate={{
-                opacity: [0.3, 1, 0.3],
-                scale: [1, 1.5, 1],
-              }}
-              transition={{
-                duration: 2 + Math.random() * 3,
-                repeat: Infinity,
-                delay: Math.random() * 2,
-              }}
-            />
-          ))}
-        </div>
-
-        {/* Globos de corazón flotantes */}
-        <div className="absolute inset-0">
-          {[...Array(12)].map((_, i) => (
-            <motion.div
-              key={`balloon-${i}`}
-              className="absolute"
-              style={{
-                left: `${Math.random() * 100}%`,
-                bottom: `${Math.random() * 40}%`,
-              }}
-              animate={{
-                y: [-20, -60, -20],
-                x: [0, Math.random() * 20 - 10, 0],
-                rotate: [-5, 5, -5],
-              }}
-              transition={{
-                duration: 4 + Math.random() * 2,
-                repeat: Infinity,
-                delay: Math.random() * 2,
-              }}
-            >
-              <div className="text-5xl opacity-40 filter drop-shadow-lg">
-                💕
-              </div>
-            </motion.div>
-          ))}
-        </div>
-
-        {/* Corazón central grande */}
+      {/* Corazones flotantes */}
+      {[...Array(15)].map((_, i) => (
         <motion.div
-          initial={{ scale: 0, rotate: -180 }}
-          animate={{ scale: 1, rotate: 0 }}
-          transition={{ type: "spring", duration: 1.5, delay: 0.3 }}
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20"
+          key={`heart-${i}`}
+          className="fixed text-pink-300 opacity-40 pointer-events-none"
+          style={{
+            left: `${Math.random() * 100}%`,
+            fontSize: `${Math.random() * 30 + 20}px`,
+          }}
+          animate={{
+            y: ['100vh', '-10vh'],
+            x: [0, Math.random() * 100 - 50],
+            rotate: [0, 360],
+          }}
+          transition={{
+            duration: Math.random() * 15 + 10,
+            repeat: Infinity,
+            delay: Math.random() * 5,
+            ease: 'linear',
+          }}
         >
-          <motion.div
-            animate={{
-              scale: [1, 1.1, 1],
-            }}
-            transition={{
-              duration: 2,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-          >
-            <Heart className="w-64 h-64 text-pink-400 fill-pink-400 drop-shadow-2xl" />
-          </motion.div>
+          ❤️
         </motion.div>
-
-        {/* Fotos flotantes alrededor del corazón */}
-        {photoPositions.map((pos, index) => (
-          <motion.div
-            key={`photo-${index}`}
-            initial={{ opacity: 0, scale: 0, rotate: 0 }}
-            animate={{ opacity: 1, scale: 1, rotate: pos.rotate }}
-            transition={{
-              type: "spring",
-              duration: 1,
-              delay: 0.5 + index * 0.2,
-            }}
-            style={{
-              position: 'absolute',
-              ...pos,
-            }}
-            className="z-10"
-          >
-            <motion.div
-              animate={{
-                y: [0, -10, 0],
-              }}
-              transition={{
-                duration: 3,
-                repeat: Infinity,
-                delay: index * 0.5,
-              }}
-              className="relative"
-            >
-              {/* Marco de foto estilo Polaroid */}
-              <div className="bg-white p-4 pb-12 shadow-2xl rounded-lg">
-                <div className="w-48 h-48 bg-gradient-to-br from-pink-200 via-purple-200 to-blue-200 rounded overflow-hidden">
-                  <img 
-                    src={`/fotos/foto${index + 1}.jpeg`} 
-                    alt=""
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        ))}
-
-        {/* Mensaje central */}
-        <motion.div
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.5 }}
-          className="absolute top-20 left-1/2 -translate-x-1/2 text-center z-30 max-w-2xl px-4"
-        >
-          <div className="bg-gradient-to-br from-pink-500/80 via-purple-500/80 to-red-500/80 backdrop-blur-md rounded-3xl p-8 shadow-2xl border-4 border-white/30">
-            <p className="text-white text-2xl md:text-3xl font-bold mb-4">
-              Gracias por acompañarme y hacer mis momentos increíbles.
-            </p>
-            <p className="text-yellow-200 text-2xl md:text-3xl font-bold mb-4">
-              Espero que me acompañes en más.
-            </p>
-            <p className="text-white text-3xl md:text-4xl font-bold flex items-center justify-center gap-2">
-              💕 Te amo 💕
-            </p>
-          </div>
-        </motion.div>
-
-        {/* Marca de agua */}
-        <div className="absolute bottom-4 right-4 text-white/40 text-sm z-40">
-          2026
-        </div>
-        </div>
-      )}
-
-      {/* Botón flotante */}
-      {!showLoveLetter && (
-        <motion.div
-        initial={{ opacity: 0, scale: 0 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 2, type: "spring" }}
-        className="absolute bottom-12 left-1/2 -translate-x-1/2 z-50"
-      >
-        <motion.button
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={handleButtonClick}
-          className="flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-pink-500 via-red-500 to-pink-500 text-white font-bold text-2xl md:text-3xl rounded-full shadow-2xl hover:shadow-pink-300/50 transition-all"
-        >
-          💖 Tú eres mi felicidad 💖
-        </motion.button>
-      </motion.div>
-      )}
+      ))}
     </div>
   );
 }
