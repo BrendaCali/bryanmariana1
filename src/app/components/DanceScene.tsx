@@ -384,6 +384,21 @@ export function DanceScene() {
             </div>
           )}
 
+          {/* Botón para saltar la canción */}
+          {!musicEnded && (
+            <motion.button
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 2 }}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleMusicEnd}
+              className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 px-6 py-3 bg-white/20 backdrop-blur-md text-white font-semibold rounded-full shadow-lg border border-white/30 hover:bg-white/30 transition-all"
+            >
+              ⏭️ Saltar canción
+            </motion.button>
+          )}
+
           {/* Mensaje final cuando termina la música */}
           <AnimatePresence>
             {musicEnded && !showPhoto && (
