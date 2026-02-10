@@ -307,7 +307,7 @@ export function PhotoCapture() {
                   className="mt-8 text-right"
                 >
                   <p className="text-2xl md:text-3xl font-dancing text-pink-700">
-                    Con todo mi amor 💕
+                     💕
                   </p>
                 </motion.div>
               </div>
