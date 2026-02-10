@@ -492,7 +492,7 @@ export function PhotoCapture() {
               Espero que me acompañes en más.
             </p>
             <p className="text-white text-3xl md:text-4xl font-bold flex items-center justify-center gap-2">
-              💕 Te amo 💕
+              💕  💕
             </p>
           </div>
         </motion.div>
